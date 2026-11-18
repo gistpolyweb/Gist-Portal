@@ -1,0 +1,279 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101b3c">
+
+  <title>GIST | Admin Dashboard</title>
+
+  <link rel="stylesheet" href="admin.css">
+</head>
+
+<body class="gist-admin">
+
+  <div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+
+      <div class="admin-brand">
+        <img src="assets/gist-logo.jpeg" alt="GIST Logo">
+        <div>
+          <h2>GIST</h2>
+          <p>ADMIN PANEL</p>
+        </div>
+      </div>
+
+      <nav class="admin-nav">
+        <a href="#overview" class="active">⌂ Dashboard</a>
+        <a href="#students">♙ Students</a>
+        <a href="#pending">◷ Pending Requests</a>
+      </nav>
+
+      <button id="adminLogout" type="button">
+        ↗ Logout
+      </button>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-main">
+
+      <header class="admin-header">
+        <div>
+          <p>GAZARIA INSTITUTE OF SCIENCE & TECHNOLOGY</p>
+          <h1>Admin Dashboard</h1>
+        </div>
+
+        <span class="admin-badge">Administrator</span>
+      </header>
+
+      <!-- OVERVIEW -->
+      <section id="overview">
+
+        <div class="admin-welcome">
+          <span>WELCOME BACK, ADMIN</span>
+          <h2>GIST Management Portal</h2>
+          <p>Manage students and registration requests.</p>
+        </div>
+
+        <div class="stats-grid">
+
+          <div class="stat-card">
+            <span>Total Students</span>
+            <strong id="totalStudents">0</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>Approved Students</span>
+            <strong id="approvedStudents">0</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>Pending Students</span>
+            <strong id="pendingStudents">0</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>Rejected Students</span>
+            <strong id="rejectedStudents">0</strong>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- STUDENTS -->
+      <section class="admin-section" id="students">
+        <h2>All Students</h2>
+
+        <div class="admin-panel">
+          <div id="studentTable">
+            Students loading...
+          </div>
+        </div>
+      </section>
+
+      <!-- PENDING -->
+      <section class="admin-section" id="pending">
+        <h2>Pending Registration Requests</h2>
+
+        <div class="admin-panel">
+          <div id="pendingTable">
+            Requests loading...
+          </div>
+        </div>
+      </section>
+      ADD NEW SUBJECT
+      <section class="admin-section" id="add-subject">
+        <h2>নতুন সাবজেক্ট যোগ করুন</h2>
+
+        <div class="admin-panel">
+          <form id="addSubjectForm" style="display: flex; flex-direction: column; gap: 15px; max-width: 500px;">
+            <label style="font-size: 13px; font-weight: 600; color: #65738e;">
+              ডিপার্টমেন্ট নির্বাচন করুন:
+              <select id="subjectDeptSelect" required style="width:100%; padding:10px; margin-top:5px; border: 1px solid #e9edf5; border-radius: 7px; background: #fff;">
+                <option value="">ডিপার্টমেন্ট সিলেক্ট করুন</option>
+              </select>
+            </label>
+
+            <label style="font-size: 13px; font-weight: 600; color: #65738e;">
+              সেমিস্টার নম্বর:
+              <select id="subjectSemesterSelect" required style="width:100%; padding:10px; margin-top:5px; border: 1px solid #e9edf5; border-radius: 7px; background: #fff;">
+                <option value="">সেমিস্টার সিলেক্ট করুন</option>
+                <option value="1">1st Semester</option>
+                <option value="2">2nd Semester</option>
+                <option value="3">3rd Semester</option>
+                <option value="4">4th Semester</option>
+                <option value="5">5th Semester</option>
+                <option value="6">6th Semester</option>
+                <option value="7">7th Semester</option>
+                <option value="8">8th Semester</option>
+              </select>
+            </label>
+
+            <label style="font-size: 13px; font-weight: 600; color: #65738e;">
+              সাবজেক্টের নাম (Subject Name):
+              <input type="text" id="subjectName" placeholder="যেমন: Data Structure and Algorithm" required style="width:100%; padding:10px; margin-top:5px; border: 1px solid #e9edf5; border-radius: 7px;">
+            </label>
+
+            <button type="submit" class="approve-btn" style="padding: 12px; cursor: pointer; border: 0; border-radius: 7px; font-weight: 700;">সাবজেক্ট সেভ করুন</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ADD NEW COURSE -->
+      <section class="admin-section" id="add-course">
+        <h2>নতুন কোর্স যোগ করুন</h2>
+
+        <div class="admin-panel">
+          <form id="addCourseForm" style="display: flex; flex-direction: column; gap: 15px; max-width: 500px;">
+            <label style="font-size: 13px; font-weight: 600; color: #65738e;">
+              ডিপার্টমেন্ট নির্বাচন করুন:
+              <select id="courseDeptSelect" required style="width:100%; padding:10px; margin-top:5px; border: 1px solid #e9edf5; border-radius: 7px; background: #fff;">
+                <option value="">ডিপার্টমেন্ট সিলেক্ট করুন</option>
+              </select>
+            </label>
+
+            <label style="font-size: 13px; font-weight: 600; color: #65738e;">
+              সেমিস্টার নির্বাচন করুন:
+              <select id="courseSemesterSelect" required style="width:100%; padding:10px; margin-top:5px; border: 1px solid #e9edf5; border-radius: 7px; background: #fff;">
+                <option value="">সেমিস্টার সিলেক্ট করুন</option>
+                <option value="1">1st Semester</option>
+                <option value="2">2nd Semester</option>
+                <option value="3">3rd Semester</option>
+                <option value="4">4th Semester</option>
+                <option value="5">5th Semester</option>
+                <option value="6">6th Semester</option>
+                <option value="7">7th Semester</option>
+                <option value="8">8th Semester</option>
+              </select>
+            </label>
+
+            <label style="font-size: 13px; font-weight: 600; color: #65738e;">
+              সাবজেক্ট নির্বাচন করুন:
+              <select id="courseSubjectSelect" required style="width:100%; padding:10px; margin-top:5px; border: 1px solid #e9edf5; border-radius: 7px; background: #fff;">
+                <option value="">আগে ডিপার্টমেন্ট ও সেমিস্টার সিলেক্ট করুন</option>
+              </select>
+            </label>
+
+            <label style="font-size: 13px; font-weight: 600; color: #65738e;">
+              কোর্সের শিরোনাম (Course Title):
+              <input type="text" id="courseTitle" placeholder="যেমন: Introduction to Algorithm" required style="width:100%; padding:10px; margin-top:5px; border: 1px solid #e9edf5; border-radius: 7px;">
+            </label>
+
+            <label style="font-size: 13px; font-weight: 600; color: #65738e;">
+              কোর্সের বিবরণ (Description - ঐচ্ছিক):
+              <textarea id="courseDesc" placeholder="কোর্স সম্পর্কে কিছু লিখুন..." style="width:100%; padding:10px; margin-top:5px; border: 1px solid #e9edf5; border-radius: 7px; height: 80px;"></textarea>
+            </label>
+
+            <button type="submit" class="approve-btn" style="padding: 12px; cursor: pointer; border: 0; border-radius: 7px; font-weight: 700;">কোর্স সেভ করুন</button>
+          </form>
+        </div>
+      </section>
+
+<!-- ADD VIDEO LESSON -->
+      <section class="admin-section" id="add-lesson">
+        <h2>নতুন ভিডিও লেসন যোগ করুন</h2>
+
+        <div class="admin-panel">
+          <form id="addLessonForm" style="display: flex; flex-direction: column; gap: 15px; max-width: 500px;">
+            
+            <!-- Department Select -->
+            <label style="font-size: 13px; font-weight: 600; color: #65738e;">
+              ডিপার্টমেন্ট নির্বাচন করুন:
+              <select id="adminDeptSelect" required style="width:100%; padding:10px; margin-top:5px; border: 1px solid #e9edf5; border-radius: 7px; background: #fff;">
+                <option value="">প্রথমে ডিপার্টমেন্ট সিলেক্ট করুন</option>
+              </select>
+            </label>
+
+            <!-- Semester Select -->
+            <label style="font-size: 13px; font-weight: 600; color: #65738e;">
+              সেমিস্টার নির্বাচন করুন:
+              <select id="adminSemesterSelect" required style="width:100%; padding:10px; margin-top:5px; border: 1px solid #e9edf5; border-radius: 7px; background: #fff;">
+                <option value="">প্রথমে সেমিস্টার সিলেক্ট করুন</option>
+                <option value="1">1st Semester</option>
+                <option value="2">2nd Semester</option>
+                <option value="3">3rd Semester</option>
+                <option value="4">4th Semester</option>
+                <option value="5">5th Semester</option>
+                <option value="6">6th Semester</option>
+                <option value="7">7th Semester</option>
+                <option value="8">8th Semester</option>
+              </select>
+            </label>
+
+            <!-- Subject Select -->
+            <label style="font-size: 13px; font-weight: 600; color: #65738e;">
+              সাবজেক্ট নির্বাচন করুন:
+              <select id="adminSubjectSelect" required style="width:100%; padding:10px; margin-top:5px; border: 1px solid #e9edf5; border-radius: 7px; background: #fff;">
+                <option value="">আগে ডিপার্টমেন্ট ও সেমিস্টার সিলেক্ট করুন</option>
+              </select>
+            </label>
+
+            <!-- Course Select -->
+            <label style="font-size: 13px; font-weight: 600; color: #65738e;">
+              কোর্স নির্বাচন করুন:
+              <select id="adminCourseSelect" name="course_id" required style="width:100%; padding:10px; margin-top:5px; border: 1px solid #e9edf5; border-radius: 7px; background: #fff;">
+                <option value="">আগে সাবজেক্ট সিলেক্ট করুন</option>
+              </select>
+            </label>
+
+            <label style="font-size: 13px; font-weight: 600; color: #65738e;">
+              লেসনের নাম (Title):
+              <input type="text" id="lessonTitle" placeholder="যেমন: Lecture 01: Introduction" required style="width:100%; padding:10px; margin-top:5px; border: 1px solid #e9edf5; border-radius: 7px;">
+            </label>
+
+            <label style="font-size: 13px; font-weight: 600; color: #65738e;">
+              ইউটিউব ভিডিও লিংক (YouTube URL):
+              <input type="url" id="lessonVideoUrl" placeholder="https://www.youtube.com/watch?v=..." required style="width:100%; padding:10px; margin-top:5px; border: 1px solid #e9edf5; border-radius: 7px;">
+            </label>
+
+            <label style="font-size: 13px; font-weight: 600; color: #65738e;">
+              লেসন সিরিয়াল (Order):
+              <input type="number" id="lessonOrder" placeholder="1, 2, 3..." value="1" required style="width:100%; padding:10px; margin-top:5px; border: 1px solid #e9edf5; border-radius: 7px;">
+            </label>
+
+            <button type="submit" class="approve-btn" style="padding: 12px; cursor: pointer; border: 0; border-radius: 7px; font-weight: 700;">ভিডিও সেভ করুন</button>
+          </form>
+        </div>
+      </section>
+      
+      <footer class="admin-footer">
+        © GIST Polytechnic | Admin Portal
+        <p id="adminMessage">Dashboard loading...</p>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- ADMIN JAVASCRIPT -->
+  <script src="admin.js"></script>
+
+</body>
+</html>

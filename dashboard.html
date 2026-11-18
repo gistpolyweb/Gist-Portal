@@ -1,0 +1,258 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101b3c">
+
+  <title>GIST | Student Dashboard</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="gist-dashboard">
+
+  <div class="dashboard-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+      <div class="sidebar-brand">
+        <img
+  src="assets/gist-logo.jpeg"
+  alt="GIST Logo"
+  class="brand-logo"
+>
+        <div>
+          <h2>GIST</h2>
+          <p>POLYTECHNIC</p>
+        </div>
+      </div>
+
+      <div class="sidebar-label">MAIN MENU</div>
+
+      <nav class="sidebar-nav">
+        <a href="#home" class="nav-link active">
+          <span>⌂</span> Dashboard
+        </a>
+
+        <a href="#profile" class="nav-link">
+          <span>♙</span> My Profile
+        </a>
+
+        <a href="#subjects" class="nav-link">
+          <span>▤</span> My Subjects
+        </a>
+
+        <a href="#courses" class="nav-link">
+          <span>▣</span> My Courses
+        </a>
+
+        <a href="#lessons" class="nav-link">
+          <span>▷</span> Video Classes
+        </a>
+
+        <a href="#resources" class="nav-link">
+          <span>▧</span> PDF Resources
+        </a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-help">
+          <span>🎓</span>
+          <strong>Keep Learning!</strong>
+          <p>Your future starts here.</p>
+        </div>
+
+        <button id="logoutButton" type="button" class="sidebar-logout">
+          ↗ Logout
+        </button>
+      </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="home">
+
+      <!-- TOP HEADER -->
+      <header class="topbar">
+        <div>
+          <p class="topbar-subtitle">GAZARIA INSTITUTE OF SCIENCE & TECHNOLOGY</p>
+          <h2>Student Learning Portal</h2>
+        </div>
+
+        <div class="topbar-status">
+          <span class="status-dot"></span>
+          Student Portal
+        </div>
+      </header>
+
+
+      <!-- WELCOME BANNER -->
+      <section class="welcome-banner">
+        <div class="welcome-content">
+          <span class="welcome-tag">WELCOME TO GIST</span>
+
+          <h1>স্বাগতম, শিক্ষার্থী!</h1>
+
+          <p>
+            Learn, grow and build your future.
+            তোমার পড়াশোনার সবকিছু এখন এক জায়গায়।
+          </p>
+
+          <a href="#subjects" class="welcome-button">
+            Explore Subjects →
+          </a>
+        </div>
+
+        <div class="welcome-art">🎓</div>
+      </section>
+
+
+      <!-- PROFILE -->
+      <section class="content-section" id="profile">
+
+        <div class="section-title">
+          <div>
+            <span class="section-eyebrow">STUDENT INFORMATION</span>
+            <h2>My Profile</h2>
+          </div>
+          <span class="section-icon">👤</span>
+        </div>
+
+        <div class="profile-grid">
+
+          <div class="info-card info-blue">
+            <div class="info-icon">♙</div>
+            <span>Student Name</span>
+            <strong id="studentName">Loading...</strong>
+          </div>
+
+          <div class="info-card info-purple">
+            <div class="info-icon">▤</div>
+            <span>Student ID</span>
+            <strong id="studentId">Loading...</strong>
+          </div>
+
+          <div class="info-card info-green">
+            <div class="info-icon">⌂</div>
+            <span>Department</span>
+            <strong id="studentDepartment">Loading...</strong>
+          </div>
+
+          <div class="info-card info-orange">
+            <div class="info-icon">▣</div>
+            <span>Semester</span>
+            <strong id="studentSemester">Loading...</strong>
+          </div>
+
+        </div>
+      </section>
+
+
+      <!-- SUBJECTS -->
+      <section class="content-section" id="subjects">
+
+        <div class="section-title">
+          <div>
+            <span class="section-eyebrow">YOUR ACADEMIC PROGRAM</span>
+            <h2>📚 My Subjects</h2>
+          </div>
+        </div>
+
+        <div class="content-panel">
+          <div id="subjectList">
+            <p>Subjects loading...</p>
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- COURSES -->
+      <section class="content-section" id="courses">
+
+        <div class="section-title">
+          <div>
+            <span class="section-eyebrow">YOUR LEARNING MATERIAL</span>
+            <h2>📖 My Courses</h2>
+          </div>
+        </div>
+
+        <div class="content-panel">
+          <div id="courseList">
+            <p>প্রথমে একটি Subject নির্বাচন করো।</p>
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- VIDEO LESSONS -->
+      <section class="content-section" id="lessons">
+
+        <div class="section-title">
+          <div>
+            <span class="section-eyebrow">ONLINE LEARNING</span>
+            <h2>🎬 Video Lessons</h2>
+          </div>
+        </div>
+
+        <div class="content-panel">
+          <div id="lessonList">
+            <p>প্রথমে একটি Course নির্বাচন করো।</p>
+          </div>
+
+          <div id="videoPlayer"></div>
+        </div>
+
+      </section>
+
+
+      <!-- PDF RESOURCES -->
+      <section class="content-section" id="resources">
+
+        <div class="section-title">
+          <div>
+            <span class="section-eyebrow">STUDY MATERIALS</span>
+            <h2>📄 PDF Resources</h2>
+          </div>
+        </div>
+
+        <div class="pdf-panel">
+          <div class="pdf-icon">📚</div>
+
+          <div>
+            <h3>Learning Resources</h3>
+            <p>
+              তোমার পড়াশোনার PDF Resources এখানে পাওয়া যাবে।
+            </p>
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- FOOTER -->
+      <footer class="dashboard-footer">
+        <p id="dashboardMessage" role="status">
+          Dashboard loading...
+        </p>
+
+        <p>© GIST Polytechnic | Student Portal</p>
+      </footer>
+
+    </main>
+  </div>
+
+
+  <!-- SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- DASHBOARD JAVASCRIPT -->
+  <script src="dashboard.js"></script>
+
+</body>
+</html>
