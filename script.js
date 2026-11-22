@@ -1,10 +1,9 @@
-
 // ======================================
 // GIST - Supabase Configuration
 // ======================================
 
 const SUPABASE_URL = "https://fnioecvkmnwwugqtykdk.supabase.co";
-const SUPABASE_ANON_KEY ="sb_publishable_jtUI6zIeKlH4y0Key2b4QQ_xWP7aDds";
+const SUPABASE_ANON_KEY = "sb_publishable_jtUI6zIeKlH4y0Key2b4QQ_xWP7aDds";
 
 const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
@@ -30,6 +29,7 @@ const loginForm = document.getElementById("loginForm");
 const registerForm = document.getElementById("registerForm");
 
 const loginButton = document.getElementById("loginButton");
+const registerButton = document.getElementById("registerButton");
 const authClose = document.getElementById("authClose");
 
 const showLogin = document.getElementById("showLogin");
@@ -39,14 +39,14 @@ const showRegister = document.getElementById("showRegister");
 // Mobile Navigation
 // ======================================
 
-menuToggle.addEventListener("click", () => {
+menuToggle?.addEventListener("click", () => {
   const isOpen = mainNav.classList.toggle("open");
 
   menuToggle.setAttribute("aria-expanded", String(isOpen));
   menuToggle.textContent = isOpen ? "✕" : "☰";
 });
 
-mainNav.querySelectorAll("a").forEach(link => {
+mainNav?.querySelectorAll("a").forEach(link => {
   link.addEventListener("click", () => {
     mainNav.classList.remove("open");
     menuToggle.setAttribute("aria-expanded", "false");
@@ -59,6 +59,8 @@ mainNav.querySelectorAll("a").forEach(link => {
 // ======================================
 
 function updateLearningTitle() {
+  if (!departmentSelect || !semesterSelect || !resourceTitle) return;
+
   const department = departmentSelect.value;
   const semester = semesterSelect.value;
 
@@ -72,24 +74,28 @@ function updateLearningTitle() {
     `${names[department]} — ${semester} সেমিস্টার`;
 }
 
-for (let i = 1; i <= 8; i++) {
-  const option = document.createElement("option");
+if (semesterSelect) {
+  for (let i = 1; i <= 8; i++) {
+    const option = document.createElement("option");
 
-  option.value = `${i}ম`;
-  option.textContent = `${i}ম সেমিস্টার`;
+    option.value = `${i}ম`;
+    option.textContent = `${i}ম সেমিস্টার`;
 
-  semesterSelect.appendChild(option);
+    semesterSelect.appendChild(option);
+  }
 }
 
-departmentSelect.addEventListener("change", updateLearningTitle);
-semesterSelect.addEventListener("change", updateLearningTitle);
+departmentSelect?.addEventListener("change", updateLearningTitle);
+semesterSelect?.addEventListener("change", updateLearningTitle);
 
 updateLearningTitle();
 
 document.querySelectorAll("[data-dept]").forEach(link => {
   link.addEventListener("click", () => {
-    departmentSelect.value = link.dataset.dept;
-    updateLearningTitle();
+    if (departmentSelect) {
+      departmentSelect.value = link.dataset.dept;
+      updateLearningTitle();
+    }
   });
 });
 
@@ -100,6 +106,8 @@ document.querySelectorAll("[data-dept]").forEach(link => {
 let toastTimer;
 
 function showToast(message) {
+  if (!toast) return;
+
   toast.textContent = message;
   toast.classList.add("show");
 
@@ -111,58 +119,72 @@ function showToast(message) {
 }
 
 // ======================================
-// Login Modal
+// Login / Registration Modal & Tabs
 // ======================================
 
-function openAuthModal() {
+function switchToLoginTab() {
+  if (loginForm) loginForm.hidden = false;
+  if (registerForm) registerForm.hidden = true;
+
+  showLogin?.classList.add("active");
+  showRegister?.classList.remove("active");
+
+  if (authMessage) authMessage.textContent = "";
+}
+
+function switchToRegisterTab() {
+  if (loginForm) loginForm.hidden = true;
+  if (registerForm) registerForm.hidden = false;
+
+  showRegister?.classList.add("active");
+  showLogin?.classList.remove("active");
+
+  if (authMessage) authMessage.textContent = "";
+}
+
+function openAuthModal(tab = "login") {
+  if (!authModal) return;
+
   authModal.classList.add("active");
   authModal.setAttribute("aria-hidden", "false");
-  authMessage.textContent = "";
+
+  // মোবাইল মেনু খোলা থাকলে বন্ধ করে দেবে
+  mainNav?.classList.remove("open");
+  menuToggle?.setAttribute("aria-expanded", "false");
+  if (menuToggle) menuToggle.textContent = "☰";
+
+  if (tab === "register") {
+    switchToRegisterTab();
+  } else {
+    switchToLoginTab();
+  }
 }
 
 function closeAuthModal() {
+  if (!authModal) return;
+
   authModal.classList.remove("active");
   authModal.setAttribute("aria-hidden", "true");
 }
 
-loginButton.addEventListener("click", openAuthModal);
-authClose.addEventListener("click", closeAuthModal);
+loginButton?.addEventListener("click", () => openAuthModal("login"));
+registerButton?.addEventListener("click", () => openAuthModal("register"));
+authClose?.addEventListener("click", closeAuthModal);
 
-authModal.addEventListener("click", event => {
+authModal?.addEventListener("click", event => {
   if (event.target === authModal) {
     closeAuthModal();
   }
 });
 
 document.addEventListener("keydown", event => {
-  if (event.key === "Escape" && authModal.classList.contains("active")) {
+  if (event.key === "Escape" && authModal?.classList.contains("active")) {
     closeAuthModal();
   }
 });
 
-// ======================================
-// Login / Registration Tabs
-// ======================================
-
-showLogin.addEventListener("click", () => {
-  loginForm.hidden = false;
-  registerForm.hidden = true;
-
-  showLogin.classList.add("active");
-  showRegister.classList.remove("active");
-
-  authMessage.textContent = "";
-});
-
-showRegister.addEventListener("click", () => {
-  loginForm.hidden = true;
-  registerForm.hidden = false;
-
-  showRegister.classList.add("active");
-  showLogin.classList.remove("active");
-
-  authMessage.textContent = "";
-});
+showLogin?.addEventListener("click", switchToLoginTab);
+showRegister?.addEventListener("click", switchToRegisterTab);
 
 // ======================================
 // Load Departments from Supabase
@@ -170,6 +192,7 @@ showRegister.addEventListener("click", () => {
 
 async function loadDepartments() {
   const select = document.getElementById("regDepartment");
+  if (!select) return;
 
   const { data, error } = await supabaseClient
     .from("departments")
@@ -178,8 +201,10 @@ async function loadDepartments() {
 
   if (error) {
     console.error("Department Error:", error.message);
-    authMessage.textContent =
-      "Department লোড করা যায়নি। পরে আবার চেষ্টা করো।";
+    if (authMessage) {
+      authMessage.textContent =
+        "Department লোড করা যায়নি। পরে আবার চেষ্টা করো।";
+    }
     return;
   }
 
@@ -199,14 +224,16 @@ async function loadDepartments() {
 // Footer Year
 // ======================================
 
-document.getElementById("year").textContent =
-  new Date().getFullYear();
+const yearEl = document.getElementById("year");
+if (yearEl) {
+  yearEl.textContent = new Date().getFullYear();
+}
 
 // ======================================
 // Registration
 // ======================================
 
-registerForm.addEventListener("submit", async event => {
+registerForm?.addEventListener("submit", async event => {
   event.preventDefault();
 
   const submitButton =
@@ -231,13 +258,14 @@ registerForm.addEventListener("submit", async event => {
     document.getElementById("regSemester").value;
 
   if (!departmentId || !semester) {
-    authMessage.textContent =
-      "Department ও Semester নির্বাচন করো।";
+    if (authMessage) {
+      authMessage.textContent = "Department ও Semester নির্বাচন করো।";
+    }
     return;
   }
 
-  submitButton.disabled = true;
-  authMessage.textContent = "Account তৈরি হচ্ছে...";
+  if (submitButton) submitButton.disabled = true;
+  if (authMessage) authMessage.textContent = "Account তৈরি হচ্ছে...";
 
   try {
     const { data, error } =
@@ -256,24 +284,26 @@ registerForm.addEventListener("submit", async event => {
 
     if (error) throw error;
 
-    if (data.session) {
-      authMessage.textContent =
-        "Registration সফল! Admin Approval-এর জন্য অপেক্ষা করো।";
-    } else {
-      authMessage.textContent =
-        "Registration সফল! Email Confirmation প্রয়োজন হলে Email চেক করো।";
+    if (authMessage) {
+      if (data.session) {
+        authMessage.textContent =
+          "Registration সফল! Admin Approval-এর জন্য অপেক্ষা করো।";
+      } else {
+        authMessage.textContent =
+          "Registration সফল! Email Confirmation প্রয়োজন হলে Email চেক করো।";
+      }
     }
 
     registerForm.reset();
 
   } catch (error) {
     console.error("Registration Error:", error);
-
-    authMessage.textContent =
-      "Registration Error: " + error.message;
+    if (authMessage) {
+      authMessage.textContent = "Registration Error: " + error.message;
+    }
 
   } finally {
-    submitButton.disabled = false;
+    if (submitButton) submitButton.disabled = false;
   }
 });
 
@@ -281,8 +311,7 @@ registerForm.addEventListener("submit", async event => {
 // Student Login
 // ======================================
 
-
-loginForm.addEventListener("submit", async (event) => {
+loginForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const message = document.getElementById("authMessage");
@@ -293,8 +322,8 @@ loginForm.addEventListener("submit", async (event) => {
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value;
 
-  submitButton.disabled = true;
-  message.textContent = "Login হচ্ছে...";
+  if (submitButton) submitButton.disabled = true;
+  if (message) message.textContent = "Login হচ্ছে...";
 
   try {
     // Step 1: Authenticate student
@@ -319,33 +348,38 @@ loginForm.addEventListener("submit", async (event) => {
     if (profileError) throw profileError;
 
     if (!profile) {
-      throw new Error("Student profile পাওয়া যায়নি।");
+      throw new Error("Student profile পাওয়া যায়নি।");
     }
 
     // Step 3: Check approval
     if (profile.account_status !== "approved") {
       await supabaseClient.auth.signOut();
 
-      message.textContent =
-        "তোমার Account এখনো Admin দ্বারা Approved হয়নি।";
+      if (message) {
+        message.textContent =
+          "তোমার Account এখনো Admin দ্বারা Approved হয়নি।";
+      }
 
       return;
     }
 
     // Step 4: Redirect
-    message.textContent = "Login সফল! Dashboard-এ যাচ্ছি...";
+    if (message) {
+      message.textContent = "Login সফল! Dashboard-এ যাচ্ছি...";
+    }
 
     window.location.href = "dashboard.html";
 
   } catch (error) {
     console.error("Login Error:", error);
-    message.textContent = "Login Error: " + error.message;
+    if (message) {
+      message.textContent = "Login Error: " + error.message;
+    }
 
   } finally {
-    submitButton.disabled = false;
+    if (submitButton) submitButton.disabled = false;
   }
 });
-
 
 // ======================================
 // Initialize
