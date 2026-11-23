@@ -119,10 +119,15 @@
             <label>সেমিস্টার<select id="semesterSelect"></select></label>
           </div>
           <div class="resource-preview" id="resourcePreview">
-            <div class="resource-icon">▤</div><div><strong id="resourceTitle">Civil Technology — ১ম সেমিস্টার</strong><p>এই সেমিস্টারের বিষয় ও লেকচার যুক্ত হলে এখানে দেখা যাবে।</p></div>
-            <span class="coming-soon">শীঘ্রই আসছে</span>
+            <div class="resource-icon">▤</div>
+            <div>
+              <strong id="resourceTitle">Civil Technology — ১ম সেমিস্টার</strong>
+              <p id="resourceDesc">এই সেমিস্টারের বিষয় ও লেকচার যুক্ত হলে এখানে দেখা যাবে।</p>
+              <div id="previewSubjectsList" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px;"></div>
+            </div>
+            <span class="coming-soon" id="resourceBadge">শীঘ্রই আসছে</span>
           </div>
-          <p class="demo-note">এটি Frontend Demo। পরবর্তী Backend ধাপে শিক্ষক/অ্যাডমিন এখানকার বিষয়, ভিডিও ও PDF যুক্ত করতে পারবেন।</p>
+          <p class="demo-note" id="learningStatusNote">নির্বাচিত ডিপার্টমেন্ট ও সেমিস্টার অনুযায়ী রিসোর্স প্রিভিউ দেখাচ্ছে।</p>
         </div>
       </div>
     </section>
@@ -150,7 +155,13 @@
       <div class="footer-brand"><img src="assets/gist-logo.jpeg" alt="GIST Logo"><div><strong>GIST</strong><small>Gazaria Institute of Science & Technology</small></div><p>শিক্ষা, প্রযুক্তি ও দক্ষতার সমন্বয়ে আগামীর পথে।</p></div>
       <div><h4>দ্রুত লিংক</h4><a href="#home">হোম</a><a href="#about">আমাদের সম্পর্কে</a><a href="#departments">ডিপার্টমেন্ট</a><a href="#notice">নোটিশ</a></div>
       <div><h4>ডিপার্টমেন্ট</h4><a href="#departments">Electrical</a><a href="#departments">Civil</a><a href="#departments">Computer</a></div>
-      <div><h4>যোগাযোগ</h4><p>Gazaria Institute of Science & Technology</p><p>বাংলাদেশ</p><a href="mailto:info@gist.edu.bd">ইমেইল: info@gist.edu.bd</a><small class="placeholder">প্রকৃত ফোন/ঠিকানা পরে যুক্ত করুন</small></div>
+      <div>
+        <h4>যোগাযোগ</h4>
+        <p>Gazaria Institute of Science & Technology</p>
+        <p>Gazaria, Munshiganj, Baluakandi -1510</p>
+        <a href="mailto:gist.message@gmail.com">ইমেইল: gist.message@gmail.com</a>
+        <p>ফোন: <a href="tel:01785729420">01785729420</a>, <a href="tel:01923194131">01923194131</a></p>
+      </div>
     </div>
     <div class="footer-bottom"><div class="container"><span>© <span id="year"></span> GIST. All rights reserved.</span><span>Designed for GIST Student Learning Portal</span></div></div>
   </footer>
@@ -208,26 +219,5 @@
   <div class="toast" id="toast" role="status"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
-  <script>
-    const authModal = document.getElementById("authModal");
-    const showLoginBtn = document.getElementById("showLogin");
-    const showRegisterBtn = document.getElementById("showRegister");
-
-    document.getElementById("loginButton")?.addEventListener("click", () => {
-      if (authModal) {
-        authModal.classList.add("open");
-        authModal.setAttribute("aria-hidden", "false");
-      }
-      showLoginBtn?.click();
-    });
-
-    document.getElementById("registerButton")?.addEventListener("click", () => {
-      if (authModal) {
-        authModal.classList.add("open");
-        authModal.setAttribute("aria-hidden", "false");
-      }
-      showRegisterBtn?.click();
-    });
-  </script>
 </body>
 </html>
