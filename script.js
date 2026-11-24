@@ -16,6 +16,7 @@ const supabaseClient = window.supabase.createClient(
 
 const menuToggle = document.getElementById("menuToggle");
 const mainNav = document.getElementById("mainNav");
+const navLinks = Array.from(document.querySelectorAll(".main-nav > a[href^='#']"));
 
 const departmentSelect = document.getElementById("departmentSelect");
 const semesterSelect = document.getElementById("semesterSelect");
@@ -36,8 +37,14 @@ const showLogin = document.getElementById("showLogin");
 const showRegister = document.getElementById("showRegister");
 
 // ======================================
-// Mobile Navigation
+// Mobile Navigation & Active Scroll Spy
 // ======================================
+
+function closeMobileMenu() {
+  mainNav?.classList.remove("open");
+  menuToggle?.setAttribute("aria-expanded", "false");
+  if (menuToggle) menuToggle.textContent = "☰";
+}
 
 menuToggle?.addEventListener("click", () => {
   const isOpen = mainNav.classList.toggle("open");
@@ -48,56 +55,232 @@ menuToggle?.addEventListener("click", () => {
 
 mainNav?.querySelectorAll("a").forEach(link => {
   link.addEventListener("click", () => {
-    mainNav.classList.remove("open");
-    menuToggle.setAttribute("aria-expanded", "false");
-    menuToggle.textContent = "☰";
+    closeMobileMenu();
   });
 });
 
+function updateActiveNavLink() {
+  if (!navLinks.length) return;
+
+  const scrollPos = window.scrollY + 130;
+  let currentId = "home";
+
+  navLinks.forEach(link => {
+    const targetId = link.getAttribute("href")?.slice(1);
+    const section = targetId ? document.getElementById(targetId) : null;
+    if (section && section.offsetTop <= scrollPos) {
+      currentId = targetId;
+    }
+  });
+
+  navLinks.forEach(link => {
+    const isMatch = link.getAttribute("href") === `#${currentId}`;
+    link.classList.toggle("active", isMatch);
+  });
+}
+
+window.addEventListener("scroll", updateActiveNavLink, { passive: true });
+window.addEventListener("load", updateActiveNavLink);
+
 // ======================================
-// Learning Section Demo
+// Learning Section Live / Preview Logic
 // ======================================
 
-function updateLearningTitle() {
+const resourceDesc = document.getElementById("resourceDesc");
+const resourceBadge = document.getElementById("resourceBadge");
+const previewSubjectsList = document.getElementById("previewSubjectsList");
+const learningStatusNote = document.getElementById("learningStatusNote");
+
+let departmentsCache = [];
+
+const departmentKeywordsMap = {
+  Civil: ["civil"],
+  Electrical: ["electrical"],
+  Computer: ["computer"]
+};
+
+const departmentDisplayMap = {
+  Civil: "Civil Technology",
+  Electrical: "Electrical Technology",
+  Computer: "Computer Technology"
+};
+
+function getSemesterNumber(semesterValue) {
+  if (!semesterValue) return 1;
+  const match = String(semesterValue).match(/\d+/);
+  return match ? Number(match[0]) : 1;
+}
+
+async function resolveDepartmentId(selectedDeptKey) {
+  if (!departmentsCache.length) {
+    const { data, error } = await supabaseClient
+      .from("departments")
+      .select("id, name")
+      .order("id");
+
+    if (!error && Array.isArray(data)) {
+      departmentsCache = data;
+    }
+  }
+
+  const keywords = departmentKeywordsMap[selectedDeptKey] || [selectedDeptKey.toLowerCase()];
+
+  const matched = departmentsCache.find(dept => {
+    const deptNameLower = String(dept.name || "").toLowerCase();
+    return keywords.some(kw => deptNameLower.includes(kw));
+  });
+
+  if (matched) return matched.id;
+
+  // Fallback ম্যাপিং স্ক্রিনশটের ID অনুযায়ী (প্রয়োজনে ডাটাবেস অনুযায়ী মিলিয়ে নেওয়া যাবে)
+  if (selectedDeptKey === "Electrical") return 1;
+  if (selectedDeptKey === "Computer") return 3;
+  return null;
+}
+
+async function renderLearningPreview() {
   if (!departmentSelect || !semesterSelect || !resourceTitle) return;
 
-  const department = departmentSelect.value;
-  const semester = semesterSelect.value;
+  const deptKey = departmentSelect.value;
+  const semesterLabel = semesterSelect.value;
+  const semesterNum = getSemesterNumber(semesterLabel);
+  const deptFullName = departmentDisplayMap[deptKey] || deptKey;
 
-  const names = {
-    Civil: "Civil Technology",
-    Electrical: "Electrical Technology",
-    Computer: "Computer Technology"
-  };
+  resourceTitle.textContent = `${deptFullName} — ${semesterLabel} সেমিস্টার`;
 
-  resourceTitle.textContent =
-    `${names[department]} — ${semester} সেমিস্টার`;
+  if (previewSubjectsList) {
+    previewSubjectsList.innerHTML = "";
+  }
+
+  if (resourceDesc) {
+    resourceDesc.textContent = "এই সেমিস্টারের বিষয় ও কোর্স যাচাই করা হচ্ছে...";
+  }
+
+  if (resourceBadge) {
+    resourceBadge.textContent = "লোড হচ্ছে...";
+  }
+
+  try {
+    const deptId = await resolveDepartmentId(deptKey);
+
+    let query = supabaseClient
+      .from("subjects")
+      .select("id, name, department_id, semester_number")
+      .eq("semester_number", semesterNum)
+      .order("id");
+
+    if (deptId !== null && deptId !== undefined) {
+      query = query.eq("department_id", deptId);
+    }
+
+    const { data: subjects, error } = await query;
+    if (error) throw error;
+
+    if (Array.isArray(subjects) && subjects.length > 0) {
+      const subjectIds = subjects.map(s => s.id);
+
+      // সংশ্লিষ্ট subject_id গুলোর জন্য courses টেবিলে কতটি কোর্স আছে তা চেক করা
+      let courseCountBySubject = {};
+      if (subjectIds.length > 0) {
+        const { data: coursesData, error: coursesError } = await supabaseClient
+          .from("courses")
+          .select("id, subject_id, title")
+          .in("subject_id", subjectIds);
+
+        if (!coursesError && Array.isArray(coursesData)) {
+          coursesData.forEach(course => {
+            courseCountBySubject[course.subject_id] =
+              (courseCountBySubject[course.subject_id] || 0) + 1;
+          });
+        }
+      }
+
+      if (resourceBadge) {
+        resourceBadge.textContent = `${subjects.length}টি বিষয়`;
+      }
+
+      if (resourceDesc) {
+        resourceDesc.textContent = `${deptFullName}-এর ${semesterLabel} সেমিস্টারের বিষয়সমূহ (বিস্তারিত লেকচার দেখতে লগইন করুন):`;
+      }
+
+      if (previewSubjectsList) {
+        subjects.forEach(sub => {
+          const chip = document.createElement("button");
+          chip.type = "button";
+          const cCount = courseCountBySubject[sub.id] || 0;
+          chip.textContent = cCount > 0 ? `${sub.name} (${cCount} কোর্স)` : sub.name;
+          chip.style.cssText =
+            "padding: 6px 13px; border-radius: 20px; border: 1px solid #bce5cc; background: #e6f6ec; color: #07834b; font-size: 12px; font-weight: 600; font-family: 'Hind Siliguri', sans-serif; cursor: pointer;";
+
+          chip.addEventListener("click", () => {
+            showToast(`"${sub.name}" এর কোর্স ও রিসোর্স দেখতে Student Portal-এ লগইন করুন।`);
+          });
+
+          previewSubjectsList.appendChild(chip);
+        });
+      }
+
+      if (learningStatusNote) {
+        learningStatusNote.textContent =
+          "Supabase-এর subjects ও courses টেবিল থেকে লাইভ তথ্য দেখানো হচ্ছে।";
+      }
+      return;
+    }
+
+    if (resourceBadge) resourceBadge.textContent = "শীঘ্রই আসছে";
+    if (resourceDesc) {
+      resourceDesc.textContent = "এই সেমিস্টারের বিষয় ও লেকচার যুক্ত হলে এখানে দেখা যাবে।";
+    }
+    if (learningStatusNote) {
+      learningStatusNote.textContent =
+        "নির্বাচিত ডিপার্টমেন্ট ও সেমিস্টারের জন্য এখনো কোনো বিষয় যুক্ত করা হয়নি।";
+    }
+  } catch (err) {
+    console.error("Learning preview error:", err);
+    if (resourceBadge) resourceBadge.textContent = "শীঘ্রই আসছে";
+    if (resourceDesc) {
+      resourceDesc.textContent = "এই সেমিস্টারের বিষয় ও লেকচার যুক্ত হলে এখানে দেখা যাবে।";
+    }
+    if (learningStatusNote) {
+      learningStatusNote.textContent =
+        "Frontend Preview সক্রিয় আছে। RLS নীতি বা সংযোগ যাচাই করলে লাইভ বিষয় দেখা যাবে।";
+    }
+  }
 }
 
 if (semesterSelect) {
   for (let i = 1; i <= 8; i++) {
     const option = document.createElement("option");
-
     option.value = `${i}ম`;
     option.textContent = `${i}ম সেমিস্টার`;
-
     semesterSelect.appendChild(option);
   }
 }
 
-departmentSelect?.addEventListener("change", updateLearningTitle);
-semesterSelect?.addEventListener("change", updateLearningTitle);
-
-updateLearningTitle();
+departmentSelect?.addEventListener("change", renderLearningPreview);
+semesterSelect?.addEventListener("change", renderLearningPreview);
 
 document.querySelectorAll("[data-dept]").forEach(link => {
-  link.addEventListener("click", () => {
-    if (departmentSelect) {
-      departmentSelect.value = link.dataset.dept;
-      updateLearningTitle();
+  link.addEventListener("click", event => {
+    const targetDept = link.dataset.dept;
+    if (departmentSelect && targetDept) {
+      departmentSelect.value = targetDept;
+      renderLearningPreview();
+    }
+
+    const href = link.getAttribute("href");
+    if (href && href.startsWith("#")) {
+      const targetEl = document.querySelector(href);
+      if (targetEl) {
+        event.preventDefault();
+        closeMobileMenu();
+        targetEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     }
   });
 });
+
+renderLearningPreview();
 
 // ======================================
 // Toast Message
@@ -115,7 +298,7 @@ function showToast(message) {
 
   toastTimer = setTimeout(() => {
     toast.classList.remove("show");
-  }, 2600);
+  }, 2800);
 }
 
 // ======================================
@@ -149,14 +332,14 @@ function openAuthModal(tab = "login") {
   authModal.setAttribute("aria-hidden", "false");
 
   // মোবাইল মেনু খোলা থাকলে বন্ধ করে দেবে
-  mainNav?.classList.remove("open");
-  menuToggle?.setAttribute("aria-expanded", "false");
-  if (menuToggle) menuToggle.textContent = "☰";
+  closeMobileMenu();
 
   if (tab === "register") {
     switchToRegisterTab();
+    setTimeout(() => document.getElementById("regName")?.focus(), 50);
   } else {
     switchToLoginTab();
+    setTimeout(() => document.getElementById("loginEmail")?.focus(), 50);
   }
 }
 
@@ -166,6 +349,8 @@ function closeAuthModal() {
   authModal.classList.remove("active");
   authModal.setAttribute("aria-hidden", "true");
 }
+
+window.openAuthModal = openAuthModal;
 
 loginButton?.addEventListener("click", () => openAuthModal("login"));
 registerButton?.addEventListener("click", () => openAuthModal("register"));
