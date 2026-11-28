@@ -31,6 +31,8 @@
         <a href="#add-subject"><span>▤</span> Add Subject</a>
         <a href="#add-course"><span>▣</span> Add Course</a>
         <a href="#add-lesson"><span>▷</span> Add Lesson</a>
+        <a href="#manage-lessons"><span>🗑</span> Manage Videos</a>
+        <a href="#notice-board"><span>📢</span> Notice Board</a>
       </nav>
 
       <button id="adminLogout" type="button">↗ Logout</button>
@@ -51,7 +53,7 @@
         <div class="admin-welcome">
           <span>WELCOME BACK, ADMIN</span>
           <h2>GIST Management Portal</h2>
-          <p>শিক্ষার্থী অনুমোদন, সাবজেক্ট, কোর্স এবং ভিডিও লেসন পরিচালনা করুন।</p>
+          <p>শিক্ষার্থী অনুমোদন, সাবজেক্ট, কোর্স, ভিডিও লেসন এবং নোটিশ বোর্ড পরিচালনা করুন।</p>
         </div>
 
         <div class="stats-grid">
@@ -223,9 +225,27 @@
             </label>
 
             <label>
-              ইউটিউব ভিডিও লিংক (YouTube URL):
-              <input type="url" id="lessonVideoUrl" placeholder="https://www.youtube.com/watch?v=..." required>
+              ভিডিও সোর্স নির্বাচন করুন:
+              <select id="lessonVideoSourceType">
+                <option value="youtube">YouTube Link</option>
+                <option value="file">ডিভাইস থেকে ভিডিও আপলোড (Device Video)</option>
+              </select>
             </label>
+
+            <div id="youtubeUrlGroup">
+              <label>
+                ইউটিউব ভিডিও লিংক (YouTube URL):
+                <input type="url" id="lessonVideoUrl" placeholder="https://www.youtube.com/watch?v=..." required>
+              </label>
+            </div>
+
+            <div id="deviceVideoGroup" hidden>
+              <label>
+                ডিভাইস থেকে ভিডিও ফাইল নির্বাচন করুন (MP4, WebM, OGG):
+                <input type="file" id="lessonVideoFile" accept="video/mp4,video/webm,video/ogg,video/*">
+              </label>
+              <small id="lessonUploadStatus" class="upload-status"></small>
+            </div>
 
             <label>
               লেসন সিরিয়াল (Order):
@@ -236,7 +256,88 @@
           </form>
         </div>
       </section>
-      
+
+      <!-- MANAGE / DELETE VIDEO LESSONS -->
+      <section class="admin-section" id="manage-lessons">
+        <h2>ভিডিও লেসন পরিচালনা ও ডিলিট করুন</h2>
+        <div class="admin-panel">
+          <div class="lesson-filter-row">
+            <label>
+              ডিপার্টমেন্ট:
+              <select id="manageDeptSelect">
+                <option value="">ডিপার্টমেন্ট সিলেক্ট করুন</option>
+              </select>
+            </label>
+
+            <label>
+              সেমিস্টার:
+              <select id="manageSemesterSelect">
+                <option value="">সেমিস্টার সিলেক্ট করুন</option>
+                <option value="1">1st Semester</option>
+                <option value="2">2nd Semester</option>
+                <option value="3">3rd Semester</option>
+                <option value="4">4th Semester</option>
+                <option value="5">5th Semester</option>
+                <option value="6">6th Semester</option>
+                <option value="7">7th Semester</option>
+                <option value="8">8th Semester</option>
+              </select>
+            </label>
+
+            <label>
+              সাবজেক্ট:
+              <select id="manageSubjectSelect">
+                <option value="">আগে ডিপার্টমেন্ট ও সেমিস্টার সিলেক্ট করুন</option>
+              </select>
+            </label>
+
+            <label>
+              কোর্স:
+              <select id="manageCourseSelect">
+                <option value="">আগে সাবজেক্ট সিলেক্ট করুন</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="manageLessonList" class="manage-lesson-list">
+            <p class="muted-hint">কোর্স নির্বাচন করলে ওই কোর্সের ভিডিও লেসনগুলো এখানে দেখা যাবে।</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- NOTICE BOARD -->
+      <section class="admin-section" id="notice-board">
+        <h2>নোটিশ বোর্ড (Notice Board)</h2>
+        <div class="admin-panel">
+          <form id="addNoticeForm" class="admin-form">
+            <label>
+              নোটিশের শিরোনাম (Notice Title):
+              <input type="text" id="noticeTitleInput" placeholder="যেমন: ৬ষ্ঠ সেমিস্টারের ক্লাস রুটিন প্রকাশিত" required>
+            </label>
+
+            <label>
+              নোটিশের বিবরণ (Notice Description):
+              <textarea id="noticeDescInput" placeholder="নোটিশের বিস্তারিত তথ্য লিখুন..." required></textarea>
+            </label>
+
+            <label>
+              সংযুক্তি (PDF বা Image - ঐচ্ছিক):
+              <input type="file" id="noticeAttachmentInput" accept="application/pdf,image/*">
+            </label>
+            <small id="noticeUploadStatus" class="upload-status"></small>
+
+            <button type="submit" class="btn-submit">নোটিশ প্রকাশ করুন</button>
+          </form>
+
+          <div class="notice-manage-wrap">
+            <h3>প্রকাশিত নোটিশসমূহ</h3>
+            <div id="adminNoticeList">
+              <p class="muted-hint">Notices loading...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <footer class="admin-footer">
         <span>© GIST Polytechnic | Admin Portal</span>
         <p id="adminMessage">Dashboard loading...</p>

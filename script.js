@@ -132,7 +132,6 @@ async function resolveDepartmentId(selectedDeptKey) {
 
   if (matched) return matched.id;
 
-  // Fallback ম্যাপিং স্ক্রিনশটের ID অনুযায়ী (প্রয়োজনে ডাটাবেস অনুযায়ী মিলিয়ে নেওয়া যাবে)
   if (selectedDeptKey === "Electrical") return 1;
   if (selectedDeptKey === "Computer") return 3;
   return null;
@@ -179,7 +178,6 @@ async function renderLearningPreview() {
     if (Array.isArray(subjects) && subjects.length > 0) {
       const subjectIds = subjects.map(s => s.id);
 
-      // সংশ্লিষ্ট subject_id গুলোর জন্য courses টেবিলে কতটি কোর্স আছে তা চেক করা
       let courseCountBySubject = {};
       if (subjectIds.length > 0) {
         const { data: coursesData, error: coursesError } = await supabaseClient
@@ -283,6 +281,152 @@ document.querySelectorAll("[data-dept]").forEach(link => {
 renderLearningPreview();
 
 // ======================================
+// File Direct Download Helper (Cross-Origin Safe)
+// ======================================
+
+async function triggerFileDownload(fileUrl, fallbackName = "notice-file", triggerBtn = null) {
+  const originalLabel = triggerBtn ? triggerBtn.textContent : "";
+  if (triggerBtn) {
+    triggerBtn.disabled = true;
+    triggerBtn.textContent = "ডাউনলোড হচ্ছে...";
+  }
+
+  try {
+    const response = await fetch(fileUrl);
+    if (!response.ok) throw new Error("Download failed");
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
+    const urlPath = new URL(fileUrl).pathname;
+    const extractedName = decodeURIComponent(urlPath.split("/").pop() || fallbackName);
+
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = extractedName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
+  } catch (err) {
+    window.open(fileUrl, "_blank", "noopener,noreferrer");
+  } finally {
+    if (triggerBtn) {
+      triggerBtn.disabled = false;
+      triggerBtn.textContent = originalLabel;
+    }
+  }
+}
+
+// ======================================
+// Notice Board Live Loader (View & Download PDF / Image)
+// ======================================
+
+async function loadHomeNotices() {
+  const noticeBoardList = document.getElementById("noticeBoardList");
+  if (!noticeBoardList) return;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("notices")
+      .select("id, title, body, description, attachment_url, attachment_type, created_at")
+      .order("id", { ascending: false })
+      .limit(5);
+
+    if (error || !Array.isArray(data) || data.length === 0) return;
+
+    noticeBoardList.innerHTML = "";
+    data.forEach(item => {
+      const block = document.createElement("div");
+      block.style.cssText = "padding: 14px 0; border-bottom: 1px solid rgba(0,0,0,0.08);";
+
+      const tag = document.createElement("span");
+      tag.className = "notice-tag";
+      tag.textContent = "NOTICE";
+
+      const strong = document.createElement("strong");
+      strong.style.cssText = "display: block; margin-top: 6px; font-size: 16px;";
+      strong.textContent = item.title || "";
+
+      const small = document.createElement("small");
+      small.style.cssText = "display: block; margin-top: 4px; line-height: 1.55;";
+      small.textContent = item.description || item.body || "";
+
+      block.append(tag, strong, small);
+
+      if (item.attachment_url) {
+        const isPdf =
+          item.attachment_type === "pdf" ||
+          String(item.attachment_url).toLowerCase().endsWith(".pdf");
+
+        const actionBar = document.createElement("div");
+        actionBar.style.cssText =
+          "display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;";
+
+        const viewBtn = document.createElement("a");
+        viewBtn.href = item.attachment_url;
+        viewBtn.target = "_blank";
+        viewBtn.rel = "noopener noreferrer";
+        viewBtn.textContent = isPdf ? "📄 PDF বড় করে দেখুন" : "👁 ইমেজ বড় করে দেখুন";
+        viewBtn.style.cssText =
+          "display: inline-flex; align-items: center; gap: 5px; padding: 7px 13px; border-radius: 8px; background: #e8efff; color: #1e42b8; font-size: 13px; font-weight: 700; text-decoration: none;";
+
+        const downloadBtn = document.createElement("button");
+        downloadBtn.type = "button";
+        downloadBtn.textContent = isPdf ? "⬇ PDF ডাউনলোড" : "⬇ ইমেজ ডাউনলোড";
+        downloadBtn.style.cssText =
+          "display: inline-flex; align-items: center; gap: 5px; padding: 7px 13px; border: 0; border-radius: 8px; background: #0b7a4b; color: #fff; font-size: 13px; font-weight: 700; font-family: 'Hind Siliguri', sans-serif; cursor: pointer;";
+
+        downloadBtn.addEventListener("click", () => {
+          triggerFileDownload(
+            item.attachment_url,
+            isPdf ? "notice.pdf" : "notice-image.jpg",
+            downloadBtn
+          );
+        });
+
+        actionBar.append(viewBtn, downloadBtn);
+
+        if (isPdf) {
+          const pdfFrame = document.createElement("iframe");
+          pdfFrame.src = item.attachment_url;
+          pdfFrame.title = item.title || "Notice PDF";
+          pdfFrame.loading = "lazy";
+          pdfFrame.style.cssText =
+            "display: block; width: 100%; height: 320px; margin-top: 10px; border: 1px solid #d8e1f0; border-radius: 10px; background: #f8fafc;";
+          block.append(pdfFrame, actionBar);
+        } else {
+          const imgLink = document.createElement("a");
+          imgLink.href = item.attachment_url;
+          imgLink.target = "_blank";
+          imgLink.rel = "noopener noreferrer";
+
+          const img = document.createElement("img");
+          img.src = item.attachment_url;
+          img.alt = item.title || "Notice Image";
+          img.loading = "lazy";
+          img.style.cssText =
+            "display: block; max-width: 100%; max-height: 300px; margin-top: 10px; border-radius: 10px; border: 1px solid #e2e8f0; object-fit: contain;";
+
+          imgLink.appendChild(img);
+          block.append(imgLink, actionBar);
+        }
+      }
+
+      noticeBoardList.appendChild(block);
+    });
+
+    if (noticeBoardList.lastElementChild) {
+      noticeBoardList.lastElementChild.style.borderBottom = "none";
+    }
+  } catch (err) {
+    console.error("Home notice load error:", err);
+  }
+}
+
+loadHomeNotices();
+
+// ======================================
 // Toast Message
 // ======================================
 
@@ -331,7 +475,6 @@ function openAuthModal(tab = "login") {
   authModal.classList.add("active");
   authModal.setAttribute("aria-hidden", "false");
 
-  // মোবাইল মেনু খোলা থাকলে বন্ধ করে দেবে
   closeMobileMenu();
 
   if (tab === "register") {
@@ -511,7 +654,6 @@ loginForm?.addEventListener("submit", async (event) => {
   if (message) message.textContent = "Login হচ্ছে...";
 
   try {
-    // Step 1: Authenticate student
     const { data, error } =
       await supabaseClient.auth.signInWithPassword({
         email,
@@ -522,7 +664,6 @@ loginForm?.addEventListener("submit", async (event) => {
 
     console.log("Authentication successful:", data.user.id);
 
-    // Step 2: Load student profile
     const { data: profile, error: profileError } =
       await supabaseClient
         .from("profiles")
@@ -536,7 +677,6 @@ loginForm?.addEventListener("submit", async (event) => {
       throw new Error("Student profile পাওয়া যায়নি।");
     }
 
-    // Step 3: Check approval
     if (profile.account_status !== "approved") {
       await supabaseClient.auth.signOut();
 
@@ -548,7 +688,6 @@ loginForm?.addEventListener("submit", async (event) => {
       return;
     }
 
-    // Step 4: Redirect
     if (message) {
       message.textContent = "Login সফল! Dashboard-এ যাচ্ছি...";
     }

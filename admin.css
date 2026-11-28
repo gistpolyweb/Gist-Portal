@@ -161,7 +161,7 @@ html { scroll-behavior: smooth; }
   gap: 16px;
   max-width: 540px;
 }
-.admin-form label {
+.admin-form label, .lesson-filter-row label {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -169,7 +169,7 @@ html { scroll-behavior: smooth; }
   font-weight: 600;
   color: #45536e;
 }
-.admin-form input, .admin-form select, .admin-form textarea {
+.admin-form input, .admin-form select, .admin-form textarea, .lesson-filter-row select {
   width: 100%;
   padding: 12px 14px;
   border: 1.5px solid #dce3f0;
@@ -180,11 +180,80 @@ html { scroll-behavior: smooth; }
   outline-color: var(--blue);
   transition: border-color 0.2s;
 }
-.admin-form input:focus, .admin-form select:focus, .admin-form textarea:focus {
+.admin-form input[type="file"] {
+  padding: 10px;
+  background: #f5f8ff;
+  border-style: dashed;
+  cursor: pointer;
+}
+.upload-status {
+  display: block;
+  margin-top: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--blue);
+}
+.admin-form input:focus, .admin-form select:focus, .admin-form textarea:focus, .lesson-filter-row select:focus {
   border-color: var(--blue);
   background: #fff;
 }
 .admin-form textarea { min-height: 90px; resize: vertical; }
+
+.lesson-filter-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  max-width: 720px;
+  margin-bottom: 20px;
+}
+.manage-lesson-list {
+  margin-top: 12px;
+}
+.muted-hint {
+  color: var(--muted);
+  font-size: 13.5px;
+  margin: 0;
+}
+.delete-lesson-btn, .delete-notice-btn {
+  border: 0;
+  border-radius: 7px;
+  padding: 8px 13px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #ffeaed;
+  color: #d33e55;
+  transition: 0.2s;
+}
+.delete-lesson-btn:hover:not(:disabled), .delete-notice-btn:hover:not(:disabled) {
+  background: #d94159;
+  color: #fff;
+}
+.delete-lesson-btn:disabled, .delete-notice-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.notice-file-link {
+  display: inline-block;
+  color: var(--blue);
+  font-weight: 700;
+  text-decoration: none;
+}
+.notice-file-link:hover {
+  text-decoration: underline;
+}
+
+.notice-manage-wrap {
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid #e9edf5;
+}
+.notice-manage-wrap h3 {
+  margin: 0 0 14px;
+  font-size: 17px;
+  color: #1c2c4a;
+}
 
 .btn-submit {
   padding: 13px 20px;
@@ -256,4 +325,5 @@ html { scroll-behavior: smooth; }
   #adminLogout { margin-top: 14px; }
   .admin-main { padding: 0 16px 22px; }
   .admin-panel { padding: 16px; }
+  .lesson-filter-row { grid-template-columns: 1fr; }
 }
